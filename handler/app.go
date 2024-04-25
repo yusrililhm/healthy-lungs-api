@@ -2,6 +2,7 @@ package handler
 
 import (
 	"expert_systems_api/handler/user_handler"
+	"expert_systems_api/infra/config"
 	"expert_systems_api/infra/db"
 	"expert_systems_api/repository/user_repo/user_pg"
 	"expert_systems_api/service/user_service"
@@ -11,9 +12,12 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func StartApplication()  {
+func StartApplication() {
 	r := chi.NewRouter()
 
+	config.LoadEnv()
+
+	db.InitializeDatabase()
 	db := db.GetDbInstance()
 
 	// dependency injection
@@ -26,5 +30,5 @@ func StartApplication()  {
 	r.Get("/user", uh.Profile)
 	r.Patch("/user", uh.Modify)
 
-	http.ListenAndServe(":8080", r)
+	http.ListenAndServe(":"+config.AppConfig().AppPort, r)
 }
