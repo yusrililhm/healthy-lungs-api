@@ -14,6 +14,7 @@ type User struct {
 	Role      string
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	DeletedAt time.Time
 }
 
 func (u *User) CompareHashPassword(password string) bool {
