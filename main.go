@@ -1,9 +1,7 @@
 package main
 
-import (
-	"expert_systems_api/handler"
-)
+import "expert_systems_api/app"
 
 func main() {
-	handler.StartApplication()
+	app.StartApplication()
 }
