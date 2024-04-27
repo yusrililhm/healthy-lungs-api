@@ -47,9 +47,9 @@ func NewInternalServerError(message string) Exception {
 
 func NewNotFoundError(message string) Exception {
 	return &Error{
-		ErrStatus:  http.StatusInternalServerError,
+		ErrStatus:  http.StatusNotFound,
 		ErrMessage: message,
-		ErrError:   "INTERNAL_SERVER_ERROR",
+		ErrError:   "NOT_FOUND",
 	}
 }
 
