@@ -46,7 +46,7 @@ func handleRequestTables() {
 				full_name varchar(60) not null,
 				email varchar(60) not null unique,
 				password text not null,
-				role varchar(5) not null,
+				role varchar(10) not null,
 				created_at timestamptz default now(),
 				updated_at timestamptz default now(),
 				deleted_at timestamptz
