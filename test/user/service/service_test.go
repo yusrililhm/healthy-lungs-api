@@ -115,3 +115,19 @@ func TestModifyFailedNotFound(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Equal(t, http.StatusNotFound, err.Status())
 }
+
+func TestModifyFailedServerError(t *testing.T) {
+	user_pg.FetchById = func(id int) (*entity.User, exception.Exception) {
+		return nil, exception.NewNotFoundError("user not found")
+	}
+
+	user_pg.Modify = func(id int, user *entity.User) exception.Exception {
+		return exception.NewInternalServerError("something went wrong")
+	}
+
+	res, err := userService.Modify(1, modifyPayload)
+
+	assert.Nil(t, res)
+	assert.NotNil(t, err)
+	assert.Equal(t, http.StatusNotFound, err.Status())
+}
