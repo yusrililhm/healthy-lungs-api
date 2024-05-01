@@ -11,14 +11,27 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var repoMock = user_pg.NewUserRepoMock()
 var userService = user_service.NewUserService(repoMock)
 
 var signUpPayload = &dto.UserSignUpPayload{}
-var signInPayload = &dto.UserSignInPayload{}
+
+var signInPayload = &dto.UserSignInPayload{
+	Password: "secret",
+}
+
 var modifyPayload = &dto.UserModifyPayload{}
+
+var changePasswordPayload = &dto.UserChangePassword{
+	OldPassword:        "secret",
+	NewPassword:        "newpassword",
+	ConfirmNewPassword: "newpassword",
+}
+
+var hashPassword, _ = bcrypt.GenerateFromPassword([]byte("secret"), bcrypt.DefaultCost)
 
 func TestUserProfileSuccess(t *testing.T) {
 	user_pg.FetchById = func(id int) (*entity.User, exception.Exception) {
@@ -130,4 +143,36 @@ func TestModifyFailedServerError(t *testing.T) {
 	assert.Nil(t, res)
 	assert.NotNil(t, err)
 	assert.Equal(t, http.StatusNotFound, err.Status())
+}
+
+func TestChangePasswordFailedUserNotFound(t *testing.T) {
+
+	user_pg.FetchById = func(id int) (*entity.User, exception.Exception) {
+		return nil, exception.NewNotFoundError("user not found")
+	}
+
+	res, err := userService.ChangePassword(1, changePasswordPayload)
+
+	assert.Nil(t, res)
+	assert.NotNil(t, err)
+	assert.Equal(t, http.StatusNotFound, err.Status())
+}
+
+func TestChangePasswordFailedPasswordNotFalid(t *testing.T) {
+
+	user_pg.FetchById = func(id int) (*entity.User, exception.Exception) {
+		return &entity.User{
+			Password: string(hashPassword),
+		}, nil
+	}
+
+	res, err := userService.ChangePassword(1, &dto.UserChangePassword{
+		OldPassword: "mkamsask",
+		NewPassword:        "momoo",
+		ConfirmNewPassword: "mimi",
+	})
+
+	assert.Nil(t, res)
+	assert.NotNil(t, err)
+	assert.Equal(t, http.StatusBadRequest, err.Status())
 }
