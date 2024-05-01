@@ -31,10 +31,6 @@ func NewUserService(ur user_repo.UserRepo) UserService {
 // ChangePassword implements UserService.
 func (us *userService) ChangePassword(userId int, payload *dto.UserChangePassword) (*helper.HTTPResponse, exception.Exception) {
 
-	if payload.NewPassword != payload.ConfirmNewPassword {
-		return nil, exception.NewBadRequestError("password didn't match")
-	}
-
 	user, err := us.ur.FetchById(userId)
 
 	if err != nil {
@@ -45,6 +41,10 @@ func (us *userService) ChangePassword(userId int, payload *dto.UserChangePasswor
 
 	if isValidPassword {
 		return nil, exception.NewBadRequestError("invalid user")
+	}
+
+	if payload.NewPassword != payload.ConfirmNewPassword {
+		return nil, exception.NewBadRequestError("password didn't match")
 	}
 
 	if err := us.ur.ChangePassword(userId, payload.NewPassword); err != nil {
