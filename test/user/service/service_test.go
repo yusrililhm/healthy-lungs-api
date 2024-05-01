@@ -17,6 +17,7 @@ var repoMock = user_pg.NewUserRepoMock()
 var userService = user_service.NewUserService(repoMock)
 
 var signUpPayload = &dto.UserSignUpPayload{}
+var signInPayload = &dto.UserSignInPayload{}
 
 func TestUserProfileSuccess(t *testing.T) {
 	user_pg.FetchById = func(id int) (*entity.User, exception.Exception) {
@@ -76,4 +77,16 @@ func TestSignUpFailedServerError(t *testing.T) {
 	assert.Nil(t, res)
 	assert.NotNil(t, err)
 	assert.Equal(t, http.StatusInternalServerError, err.Status())
+}
+
+func TestSignInFailedNotFound(t *testing.T) {
+	user_pg.FetchByEmail = func(email string) (*entity.User, exception.Exception) {
+		return nil, exception.NewNotFoundError("user not found")
+	}
+
+	res, err := userService.SignIn(signInPayload)
+
+	assert.Nil(t, res)
+	assert.NotNil(t, err)
+	assert.Equal(t, http.StatusNotFound, err.Status())
 }
