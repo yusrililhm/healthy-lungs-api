@@ -14,15 +14,15 @@ type userPg struct {
 }
 
 const (
-	addUserQuery = `INSERT INTO user (full_name, email, password) VALUES($1, $2, $3)`
+	addUserQuery = `INSERT INTO "user" (full_name, email, password, role) VALUES($1, $2, $3, $4)`
 
-	fetchByEmailQuery = `SELECT id, full_name, email, password FROM user WHERE email = $1`
+	fetchByEmailQuery = `SELECT id, full_name, email, password FROM "user" WHERE email = $1`
 
-	fetchByIdQuery = `SELECT id, full_name, email, password FROM user WHERE id = $1`
+	fetchByIdQuery = `SELECT id, full_name, email, password FROM "user" WHERE id = $1`
 
-	modifyUserQuery = `UPDATE FROM user SET full_name = $2, email = $3 WHERE id = $1`
+	modifyUserQuery = `UPDATE FROM "user" SET full_name = $2, email = $3 WHERE id = $1`
 
-	changePasswordQuery = `UPDATE FROM user SET password = $2 WHERE`
+	changePasswordQuery = `UPDATE FROM "user" SET password = $2 WHERE`
 )
 
 func NewUserRepo(db *sql.DB) user_repo.UserRepo {
@@ -50,7 +50,7 @@ func (pg *userPg) Add(user *entity.User) exception.Exception {
 		return exception.NewInternalServerError("something went wrong")
 	}
 
-	_, err = stmt.Exec(user.FullName, user.Email, user.Password)
+	_, err = stmt.Exec(user.FullName, user.Email, user.Password, user.Role)
 
 	if err != nil {
 		// if err ==  {
