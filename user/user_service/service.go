@@ -61,6 +61,12 @@ func (us *userService) ChangePassword(userId int, payload *dto.UserChangePasswor
 // Modify implements UserService.
 func (us *userService) Modify(userId int, payload *dto.UserModifyPayload) (*helper.HTTPResponse, exception.Exception) {
 
+	_, err := us.ur.FetchById(userId)
+
+	if err != nil {
+		return nil, err
+	}
+
 	if err := us.ur.Modify(userId, &entity.User{
 		FullName: payload.FullName,
 		Email:    payload.Email,
