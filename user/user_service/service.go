@@ -132,6 +132,7 @@ func (us *userService) SignUp(payload *dto.UserSignUpPayload) (*helper.HTTPRespo
 		FullName: payload.FullName,
 		Email:    payload.Email,
 		Password: payload.Password,
+		Role: "members",
 	}
 
 	if err := us.ur.Add(u); err != nil {
