@@ -27,7 +27,7 @@ func handleDatabaseConnection() {
 		appConfig.DBName,
 	)
 
-	db, err = sql.Open("postgres", dataSourceName)
+	db, err = sql.Open(appConfig.DBDialect, dataSourceName)
 
 	if err != nil {
 		log.Fatalf("error occured while trying to validate database arguments: %s\n", err.Error())
@@ -41,16 +41,16 @@ func handleDatabaseConnection() {
 func handleRequestTables() {
 	const (
 		createTableUserQuery = `
-			CREATE TABLE IF NOT EXISTS user (
+			CREATE TABLE IF NOT EXISTS "user" (
 				id serial primary key,
 				full_name varchar(60) not null,
 				email varchar(60) not null unique,
-				password varchar(text) not null,
+				password text not null,
 				role varchar(5) not null,
-				created_at timestamptz default = now(),
-				updated_at timestamptz default = now(),
+				created_at timestamptz default now(),
+				updated_at timestamptz default now(),
 				deleted_at timestamptz
-			)
+			);
 		`
 	)
 
