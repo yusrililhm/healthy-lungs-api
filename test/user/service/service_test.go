@@ -105,6 +105,22 @@ func TestSignInFailedNotFound(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, err.Status())
 }
 
+func TestSignInFailedInvalidPassword(t *testing.T)  {
+	user_pg.FetchByEmail = func(email string) (*entity.User, exception.Exception) {
+		return &entity.User{
+			Password: string(hashPassword),
+		}, nil
+	}
+
+	res, err := userService.SignIn(&dto.UserSignInPayload{
+		Password: "akmskams",
+	})
+
+	assert.Nil(t, err)
+	assert.NotNil(t, res)
+	assert.Equal(t, http.StatusOK, res.Status)
+}
+
 func TestSignInSuccess(t *testing.T) {
 	user_pg.FetchByEmail = func(email string) (*entity.User, exception.Exception) {
 		return &entity.User{}, nil
@@ -167,7 +183,7 @@ func TestChangePasswordFailedPasswordNotFalid(t *testing.T) {
 	}
 
 	res, err := userService.ChangePassword(1, &dto.UserChangePassword{
-		OldPassword: "mkamsask",
+		OldPassword:        "mkamsask",
 		NewPassword:        "momoo",
 		ConfirmNewPassword: "mimi",
 	})
