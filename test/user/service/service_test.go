@@ -18,6 +18,7 @@ var userService = user_service.NewUserService(repoMock)
 
 var signUpPayload = &dto.UserSignUpPayload{}
 var signInPayload = &dto.UserSignInPayload{}
+var modifyPayload = &dto.UserModifyPayload{}
 
 func TestUserProfileSuccess(t *testing.T) {
 	user_pg.FetchById = func(id int) (*entity.User, exception.Exception) {
@@ -101,4 +102,16 @@ func TestSignInSuccess(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, res)
 	assert.Equal(t, http.StatusOK, res.Status)
+}
+
+func TestModifyFailedNotFound(t *testing.T) {
+	user_pg.FetchById = func(id int) (*entity.User, exception.Exception) {
+		return nil, exception.NewNotFoundError("user not found")
+	}
+
+	res, err := userService.Modify(1, modifyPayload)
+
+	assert.Nil(t, res)
+	assert.NotNil(t, err)
+	assert.Equal(t, http.StatusNotFound, err.Status())
 }
