@@ -90,3 +90,15 @@ func TestSignInFailedNotFound(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Equal(t, http.StatusNotFound, err.Status())
 }
+
+func TestSignInSuccess(t *testing.T) {
+	user_pg.FetchByEmail = func(email string) (*entity.User, exception.Exception) {
+		return &entity.User{}, nil
+	}
+
+	res, err := userService.SignIn(signInPayload)
+
+	assert.Nil(t, err)
+	assert.NotNil(t, res)
+	assert.Equal(t, http.StatusOK, res.Status)
+}
