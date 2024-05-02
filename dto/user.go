@@ -26,6 +26,10 @@ type UserData struct {
 	UpdatedAt time.Time
 }
 
+type TokenString struct {
+	Token string `json:"token"`
+}
+
 type UserChangePassword struct {
 	OldPassword        string `json:"old_password"`
 	NewPassword        string `json:"new_password"`
