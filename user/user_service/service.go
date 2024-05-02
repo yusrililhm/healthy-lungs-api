@@ -135,6 +135,8 @@ func (us *userService) SignUp(payload *dto.UserSignUpPayload) (*helper.HTTPRespo
 		Role: "members",
 	}
 
+	u.GenerateHashPassword()
+
 	if err := us.ur.Add(u); err != nil {
 		return nil, err
 	}
