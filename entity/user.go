@@ -17,6 +17,10 @@ type User struct {
 	DeletedAt time.Time
 }
 
+func (u *User) GenerateTokenString() string {
+	return ""
+}
+
 func (u *User) CompareHashPassword(password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
 	return err == nil
