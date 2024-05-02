@@ -114,14 +114,16 @@ func (us *userService) SignIn(payload *dto.UserSignInPayload) (*helper.HTTPRespo
 
 	isValidPassword := user.CompareHashPassword(payload.Password)
 
-	if isValidPassword {
+	if !isValidPassword {
 		return nil, exception.NewBadRequestError("invalid user")
 	}
 
 	return &helper.HTTPResponse{
 		Status:  http.StatusOK,
 		Message: "user successfully fetched",
-		Data:    user,
+		Data: &dto.TokenString{
+			Token: user.GenerateTokenString(),
+		},
 	}, nil
 }
 
