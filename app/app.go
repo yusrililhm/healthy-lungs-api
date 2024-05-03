@@ -30,8 +30,12 @@ func StartApplication() {
 
 	r.Post("/user/signin", uh.SignIn)
 	r.Post("/user/signup", uh.SignUp)
-	r.Get("/user", uh.Profile)
-	r.Patch("/user", uh.Modify)
+
+	r.Group(func(r chi.Router) {
+		r.Use(us.Authentication)
+		r.Get("/user", uh.Profile)
+		r.Patch("/user", uh.Modify)
+	})
 
 	log.Printf("[server is running] on port %s", config.AppConfig().AppPort)
 	http.ListenAndServe(":"+config.AppConfig().AppPort, r)
