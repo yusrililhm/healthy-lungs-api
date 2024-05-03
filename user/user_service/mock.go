@@ -4,12 +4,14 @@ import (
 	"expert_systems_api/dto"
 	"expert_systems_api/pkg/exception"
 	"expert_systems_api/pkg/helper"
+	"net/http"
 )
 
 type userServiceMock struct {
 }
 
 var (
+	Authentication func(next http.Handler) http.Handler
 	ChangePassword func(userId int, payload *dto.UserChangePassword) (*helper.HTTPResponse, exception.Exception)
 	Modify         func(userId int, payload *dto.UserModifyPayload) (*helper.HTTPResponse, exception.Exception)
 	Profile        func(userId int) (*helper.HTTPResponse, exception.Exception)
@@ -19,6 +21,11 @@ var (
 
 func NewUserServiceMock() UserService {
 	return &userServiceMock{}
+}
+
+// Authentication implements UserService.
+func (u *userServiceMock) Authentication(next http.Handler) http.Handler {
+	return Authentication(next)
 }
 
 // ChangePassword implements UserService.

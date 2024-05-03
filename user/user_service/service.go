@@ -1,6 +1,7 @@
 package user_service
 
 import (
+	"context"
 	"expert_systems_api/dto"
 	"expert_systems_api/entity"
 	"expert_systems_api/pkg/exception"
@@ -20,12 +21,44 @@ type UserService interface {
 	Modify(userId int, payload *dto.UserModifyPayload) (*helper.HTTPResponse, exception.Exception)
 	Profile(userId int) (*helper.HTTPResponse, exception.Exception)
 	ChangePassword(userId int, payload *dto.UserChangePassword) (*helper.HTTPResponse, exception.Exception)
+	Authentication(next http.Handler) http.Handler
 }
 
 func NewUserService(ur user_repo.UserRepo) UserService {
 	return &userService{
 		ur: ur,
 	}
+}
+
+// Authentication implements UserService.
+func (us *userService) Authentication(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		bearerToken := r.Header.Get("Authorization")
+
+		user := &entity.User{}
+
+		err := user.ValidateToken(bearerToken)
+
+		if err != nil {
+			w.WriteHeader(err.Status())
+			w.Write(helper.ResponseJSON(err))
+			return
+		}
+
+		u, err := us.ur.FetchByEmail(user.Email)
+
+		if err != nil {
+			w.WriteHeader(err.Status())
+			w.Write(helper.ResponseJSON(err))
+			return
+		}
+
+		ctx := context.WithValue(context.Background(), "user", u)
+		r = r.WithContext(ctx)
+
+		next.ServeHTTP(w, r)
+	})
 }
 
 // ChangePassword implements UserService.
