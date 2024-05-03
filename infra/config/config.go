@@ -8,13 +8,14 @@ import (
 )
 
 type appConfig struct {
-	AppPort    string
-	DBUser     string
-	DBHost     string
-	DBPort     string
-	DBName     string
-	DBPassword string
-	DBDialect  string
+	AppPort      string
+	DBUser       string
+	DBHost       string
+	DBPort       string
+	DBName       string
+	DBPassword   string
+	DBDialect    string
+	JWTSecretKey string
 }
 
 func LoadEnv() {
@@ -25,12 +26,13 @@ func LoadEnv() {
 
 func AppConfig() *appConfig {
 	return &appConfig{
-		AppPort:    os.Getenv("APP_PORT"),
-		DBHost:     os.Getenv("DB_HOST"),
-		DBUser:     os.Getenv("DB_USER"),
-		DBPort:     os.Getenv("DB_PORT"),
-		DBName:     os.Getenv("DB_NAME"),
-		DBPassword: os.Getenv("DB_PASSWORD"),
-		DBDialect:  os.Getenv("DB_DIALECT"),
+		AppPort:      os.Getenv("APP_PORT"),
+		DBHost:       os.Getenv("DB_HOST"),
+		DBUser:       os.Getenv("DB_USER"),
+		DBPort:       os.Getenv("DB_PORT"),
+		DBName:       os.Getenv("DB_NAME"),
+		DBPassword:   os.Getenv("DB_PASSWORD"),
+		DBDialect:    os.Getenv("DB_DIALECT"),
+		JWTSecretKey: os.Getenv("JWT_SECRET_KEY"),
 	}
 }
