@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"expert_systems_api/dto"
+	"expert_systems_api/entity"
 	"expert_systems_api/pkg/exception"
 	"expert_systems_api/pkg/helper"
 	"expert_systems_api/user/user_service"
@@ -30,11 +31,39 @@ func NewUserHandler(us user_service.UserService) UserHandler {
 
 // ChangePassword implements UserHandler.
 func (uh *userHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
-	
+	user := r.Context().Value("user").(entity.User)
+
+	payload := &dto.UserChangePassword{}
+
+	if err := json.NewDecoder(r.Body).Decode(payload); err != nil {
+		unprocessableEntityError := exception.NewUnprocessableEntityError("invalid JSON body request")
+		w.WriteHeader(unprocessableEntityError.Status())
+		w.Write(helper.ResponseJSON(unprocessableEntityError))
+		return
+	}
+
+	if e := helper.ValidationStruct(payload); e != nil {
+		w.WriteHeader(e.Status())
+		w.Write(helper.ResponseJSON(e))
+		return
+	}
+
+	ur, err := uh.us.ChangePassword(user.Id, payload)
+
+	if err != nil {
+		w.WriteHeader(err.Status())
+		w.Write(helper.ResponseJSON(err))
+		return
+	}
+
+	w.WriteHeader(ur.Status)
+	w.Write(helper.ResponseJSON(ur))
 }
 
 // Modify implements UserHandler.
 func (uh *userHandler) Modify(w http.ResponseWriter, r *http.Request) {
+	user := r.Context().Value("user").(entity.User)
+
 	payload := &dto.UserModifyPayload{}
 
 	if err := json.NewDecoder(r.Body).Decode(payload); err != nil {
@@ -50,7 +79,7 @@ func (uh *userHandler) Modify(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ur, err := uh.us.Modify(0, payload)
+	ur, err := uh.us.Modify(user.Id, payload)
 
 	if err != nil {
 		w.WriteHeader(err.Status())
@@ -64,7 +93,10 @@ func (uh *userHandler) Modify(w http.ResponseWriter, r *http.Request) {
 
 // Profile implements UserHandler.
 func (uh *userHandler) Profile(w http.ResponseWriter, r *http.Request) {
-	ur, err := uh.us.Profile(0)
+
+	user := r.Context().Value("user").(entity.User)
+
+	ur, err := uh.us.Profile(user.Id)
 
 	if err != nil {
 		w.WriteHeader(err.Status())
