@@ -2,6 +2,9 @@ package entity
 
 import (
 	"expert_systems_api/infra/config"
+	"expert_systems_api/pkg/exception"
+	"log"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -19,11 +22,77 @@ type User struct {
 	DeletedAt time.Time `json:"deleted_at"`
 }
 
+func (u *User) ValidateToken(bearerToken string) exception.Exception {
+
+	isBearer := strings.HasPrefix(bearerToken, "Bearer")
+
+	if !isBearer {
+		return exception.NewUnauthenticatedError("invalid token")
+	}
+
+	splitToken := strings.Fields(bearerToken)
+
+	if len(splitToken) != 2 {
+		log.Println("salah disini")
+		return exception.NewUnauthenticatedError("invalid token")
+	}
+
+	tokenString := splitToken[1]
+
+	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, exception.NewUnauthenticatedError("invalid token")
+		}
+		return []byte(config.AppConfig().JWTSecretKey), nil
+	})
+
+	if err != nil {
+		return exception.NewUnauthenticatedError("invalid token")
+	}
+
+	mapClaims := jwt.MapClaims{}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); !ok || !token.Valid {
+		return exception.NewUnauthenticatedError("invalid token")
+	} else {
+		mapClaims = claims
+	}
+
+	email, ok := mapClaims["email"].(string)
+
+	if !ok {
+		return exception.NewUnauthenticatedError("invalid token")
+	}
+
+	u.Email = email
+
+	role, ok := mapClaims["role"].(string)
+
+	if !ok {
+		return exception.NewUnauthenticatedError("invalid token")
+	}
+
+	u.Role = role
+
+	expiredAt, ok := mapClaims["expired_at"]
+
+	if !ok {
+		return exception.NewUnauthenticatedError("invalid token")
+	}
+
+	if expiredAt == time.Now().Unix() {
+		return exception.NewUnauthenticatedError("token has been expired")
+	}
+
+	return nil
+}
+
 func (u *User) GenerateTokenString() string {
 
 	claims := jwt.MapClaims{
 		"email":      u.Email,
-		"expired_at": time.Now().Add(8 * time.Hour),
+		"role":       u.Role,
+		"expired_at": time.Now().Add(1 * time.Minute).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
