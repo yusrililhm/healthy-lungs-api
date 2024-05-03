@@ -68,3 +68,11 @@ func NewConflictError(message string) Exception {
 		ErrError:   "CONFLICT_ERROR",
 	}
 }
+
+func NewUnauthenticatedError(message string) Exception {
+	return &Error{
+		ErrStatus:  http.StatusUnauthorized,
+		ErrMessage: message,
+		ErrError:   "UNAUTHENTICATED_ERROR",
+	}
+}
