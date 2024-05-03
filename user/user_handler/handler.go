@@ -31,7 +31,7 @@ func NewUserHandler(us user_service.UserService) UserHandler {
 
 // ChangePassword implements UserHandler.
 func (uh *userHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
-	user := r.Context().Value("user").(entity.User)
+	user := r.Context().Value("user").(*entity.User)
 
 	payload := &dto.UserChangePassword{}
 
@@ -62,7 +62,7 @@ func (uh *userHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 
 // Modify implements UserHandler.
 func (uh *userHandler) Modify(w http.ResponseWriter, r *http.Request) {
-	user := r.Context().Value("user").(entity.User)
+	user := r.Context().Value("user").(*entity.User)
 
 	payload := &dto.UserModifyPayload{}
 
@@ -94,7 +94,7 @@ func (uh *userHandler) Modify(w http.ResponseWriter, r *http.Request) {
 // Profile implements UserHandler.
 func (uh *userHandler) Profile(w http.ResponseWriter, r *http.Request) {
 
-	user := r.Context().Value("user").(entity.User)
+	user := r.Context().Value("user").(*entity.User)
 
 	ur, err := uh.us.Profile(user.Id)
 
