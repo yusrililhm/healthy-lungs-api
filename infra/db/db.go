@@ -52,10 +52,25 @@ func handleRequestTables() {
 				deleted_at timestamptz
 			);
 		`
+
+		createTableSymtompQuery = `
+			CREATE TABLE IF NOT EXISTS "symtomp" (
+				id serial primary key,
+				name varchar(60) not null,
+				description text not null,
+				created_at timestamptz default now(),
+				updated_at timestamptz default now(),
+				deleted_at timestamptz
+			)
+		`
 	)
 
 	if _, err := db.Exec(createTableUserQuery); err != nil {
 		log.Fatalf("error while create table user: %s\n", err.Error())
+	}
+
+	if _, err := db.Exec(createTableSymtompQuery); err != nil {
+		log.Fatalf("error while create table symtomp: %s\n", err.Error())
 	}
 }
 
