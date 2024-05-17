@@ -174,7 +174,7 @@ func TestChangePasswordFailedUserNotFound(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, err.Status())
 }
 
-func TestChangePasswordFailedPasswordNotFalid(t *testing.T) {
+func TestChangePasswordFailedPasswordNotValid(t *testing.T) {
 
 	user_pg.FetchById = func(id int) (*entity.User, exception.Exception) {
 		return &entity.User{
