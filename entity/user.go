@@ -74,15 +74,15 @@ func (u *User) ValidateToken(bearerToken string) exception.Exception {
 
 	u.Role = role
 
-	expiredAt, ok := mapClaims["expired_at"]
+	_, ok = mapClaims["expired_at"]
 
 	if !ok {
 		return exception.NewUnauthenticatedError("invalid token")
 	}
 
-	if expiredAt == time.Now().Unix() {
-		return exception.NewUnauthenticatedError("token has been expired")
-	}
+	// if expiredAt == time.Now().UnixMilli() {
+	// 	return exception.NewUnauthenticatedError("token has been expired")
+	// }
 
 	return nil
 }
@@ -92,7 +92,7 @@ func (u *User) GenerateTokenString() string {
 	claims := jwt.MapClaims{
 		"email":      u.Email,
 		"role":       u.Role,
-		"expired_at": time.Now().Add(1 * time.Minute).Unix(),
+		"expired_at": time.Now().Add(15 * time.Second).UnixMilli(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
